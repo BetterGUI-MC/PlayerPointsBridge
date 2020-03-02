@@ -21,7 +21,7 @@ public class GivePointsCommand extends Command {
   public void addToTaskChain(Player player, TaskChain<?> taskChain) {
     int pointsToGive = 0;
     String parsed = getParsedCommand(player);
-    if (Validate.isValidPositiveInteger(parsed)) {
+    if (Validate.isValidPositiveNumber(parsed)) {
       pointsToGive = Integer.parseInt(parsed);
     } else if (ExpressionUtils.isValidExpression(parsed)) {
       pointsToGive = Objects.requireNonNull(ExpressionUtils.getResult(parsed)).intValue();
