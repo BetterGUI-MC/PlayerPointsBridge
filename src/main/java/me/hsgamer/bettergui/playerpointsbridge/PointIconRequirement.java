@@ -1,7 +1,9 @@
 package me.hsgamer.bettergui.playerpointsbridge;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import me.hsgamer.bettergui.BetterGUI;
 import me.hsgamer.bettergui.config.impl.MessageConfig.DefaultMessage;
@@ -29,8 +31,9 @@ public class PointIconRequirement extends IconRequirement<Object, Integer> imple
     if (ExpressionUtils.isValidExpression(parsed)) {
       return ExpressionUtils.getResult(parsed).intValue();
     } else {
-      if (Validate.isValidInteger(parsed)) {
-        return Integer.parseInt(parsed);
+      Optional<BigDecimal> number = Validate.getNumber(parsed);
+      if (number.isPresent()) {
+        return number.get().intValue();
       } else {
         CommonUtils.sendMessage(player,
             BetterGUI.getInstance().getMessageConfig().get(DefaultMessage.INVALID_NUMBER)
