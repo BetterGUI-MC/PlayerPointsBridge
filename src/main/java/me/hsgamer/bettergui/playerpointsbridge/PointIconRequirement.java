@@ -47,7 +47,6 @@ public class PointIconRequirement extends IconRequirement<Object, Integer> imple
   public boolean check(Player player) {
     int points = getParsedValue(player);
     if (points > 0 && !PlayerPointsHook.hasPoints(player, points)) {
-      sendFailCommand(player);
       return false;
     } else {
       checked.put(player.getUniqueId(), points);
