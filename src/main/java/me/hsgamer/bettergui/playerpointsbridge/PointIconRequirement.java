@@ -8,26 +8,25 @@ import java.util.UUID;
 import me.hsgamer.bettergui.BetterGUI;
 import me.hsgamer.bettergui.config.impl.MessageConfig.DefaultMessage;
 import me.hsgamer.bettergui.object.Icon;
-import me.hsgamer.bettergui.object.IconRequirement;
 import me.hsgamer.bettergui.object.IconVariable;
+import me.hsgamer.bettergui.object.Requirement;
 import me.hsgamer.bettergui.util.CommonUtils;
 import me.hsgamer.bettergui.util.ExpressionUtils;
 import me.hsgamer.bettergui.util.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-public class PointIconRequirement extends IconRequirement<Object, Integer> implements IconVariable {
+public class PointIconRequirement extends Requirement<Object, Integer> implements IconVariable {
 
   private final Map<UUID, Integer> checked = new HashMap<>();
 
-  public PointIconRequirement(Icon icon) {
-    super(icon, true);
+  public PointIconRequirement() {
+    super(true);
   }
 
   @Override
   public Integer getParsedValue(Player player) {
-    String parsed = String.valueOf(value).trim();
-    parsed = icon.hasVariables(parsed) ? icon.setVariables(parsed, player) : parsed;
+    String parsed = parseFromString(String.valueOf(value).trim(), player);
     if (ExpressionUtils.isValidExpression(parsed)) {
       return ExpressionUtils.getResult(parsed).intValue();
     } else {
@@ -68,8 +67,8 @@ public class PointIconRequirement extends IconRequirement<Object, Integer> imple
   }
 
   @Override
-  public Icon getIcon() {
-    return this.icon;
+  public Optional<Icon> getIconInvolved() {
+    return getIcon();
   }
 
   @Override
