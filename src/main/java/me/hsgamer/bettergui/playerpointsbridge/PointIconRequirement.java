@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import me.hsgamer.bettergui.BetterGUI;
-import me.hsgamer.bettergui.config.impl.MessageConfig.DefaultMessage;
+import me.hsgamer.bettergui.config.impl.MessageConfig;
 import me.hsgamer.bettergui.object.LocalVariable;
 import me.hsgamer.bettergui.object.LocalVariableManager;
 import me.hsgamer.bettergui.object.Requirement;
@@ -14,6 +13,7 @@ import me.hsgamer.bettergui.util.CommonUtils;
 import me.hsgamer.bettergui.util.ExpressionUtils;
 import me.hsgamer.bettergui.util.Validate;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class PointIconRequirement extends Requirement<Object, Integer> implements LocalVariable {
@@ -35,8 +35,7 @@ public class PointIconRequirement extends Requirement<Object, Integer> implement
         return number.get().intValue();
       } else {
         CommonUtils.sendMessage(player,
-            BetterGUI.getInstance().getMessageConfig().get(DefaultMessage.INVALID_NUMBER)
-                .replace("{input}", parsed));
+            MessageConfig.INVALID_NUMBER.getValue().replace("{input}", parsed));
         return 0;
       }
     }
@@ -72,12 +71,14 @@ public class PointIconRequirement extends Requirement<Object, Integer> implement
   }
 
   @Override
-  public String getReplacement(Player player, String s) {
-    int points = getParsedValue(player);
+  public String getReplacement(OfflinePlayer player, String s) {
+    if (!player.isOnline()) {
+      return "";
+    }
+    int points = getParsedValue(player.getPlayer());
     if (points > 0 && !PlayerPointsHook.hasPoints(player, points)) {
       return String.valueOf(points);
     }
-    return BetterGUI.getInstance().getMessageConfig()
-        .get(DefaultMessage.HAVE_MET_REQUIREMENT_PLACEHOLDER);
+    return MessageConfig.HAVE_MET_REQUIREMENT_PLACEHOLDER.getValue();
   }
 }
