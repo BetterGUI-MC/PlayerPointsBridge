@@ -1,12 +1,12 @@
 package me.hsgamer.bettergui.playerpointsbridge;
 
 import java.util.Objects;
-import me.hsgamer.bettergui.config.impl.MessageConfig;
+import me.hsgamer.bettergui.config.MessageConfig;
 import me.hsgamer.bettergui.lib.taskchain.TaskChain;
 import me.hsgamer.bettergui.object.Command;
-import me.hsgamer.bettergui.util.CommonUtils;
-import me.hsgamer.bettergui.util.ExpressionUtils;
-import me.hsgamer.bettergui.util.Validate;
+import me.hsgamer.bettergui.util.MessageUtils;
+import me.hsgamer.bettergui.util.common.Validate;
+import me.hsgamer.bettergui.util.expression.ExpressionUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -25,7 +25,7 @@ public class GivePointsCommand extends Command {
     } else if (ExpressionUtils.isValidExpression(parsed)) {
       pointsToGive = Objects.requireNonNull(ExpressionUtils.getResult(parsed)).intValue();
     } else {
-      CommonUtils
+      MessageUtils
           .sendMessage(player, MessageConfig.INVALID_NUMBER.getValue().replace("{input}", parsed));
     }
 
