@@ -5,6 +5,7 @@ import me.hsgamer.bettergui.config.MessageConfig;
 import me.hsgamer.bettergui.lib.core.bukkit.utils.MessageUtils;
 import me.hsgamer.bettergui.lib.core.expression.ExpressionUtils;
 import me.hsgamer.bettergui.lib.core.variable.VariableManager;
+import me.hsgamer.bettergui.manager.PluginVariableManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -20,7 +21,7 @@ public class PointRequirement extends TakableRequirement<Integer> {
 
     public PointRequirement(String name) {
         super(name);
-        VariableManager.register(name, (original, uuid) -> {
+        PluginVariableManager.register(name, (original, uuid) -> {
             int points = getParsedValue(uuid);
             if (points > 0 && !PlayerPointsHook.hasPoints(uuid, points)) {
                 return String.valueOf(points);
