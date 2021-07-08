@@ -73,6 +73,10 @@
             <id>codemc-snapshots</id>
             <url>https://repo.codemc.io/repository/maven-snapshots/</url>
         </repository>
+        <repository>
+            <id>rosewood-repo</id>
+            <url>https://repo.rosewooddev.io/repository/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -85,15 +89,14 @@
         <dependency>
             <groupId>me.HSGamer</groupId>
             <artifactId>BetterGUI</artifactId>
-            <version>5.1</version>
+            <version>6.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.black_ixx</groupId>
-            <artifactId>PlayerPoints</artifactId>
-            <version>2.1.5-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/PlayerPoints.jar</systemPath>
+            <artifactId>playerpoints</artifactId>
+            <version>3.0.3</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
