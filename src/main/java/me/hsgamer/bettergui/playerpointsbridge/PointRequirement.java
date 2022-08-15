@@ -1,32 +1,27 @@
 package me.hsgamer.bettergui.playerpointsbridge;
 
+import me.hsgamer.bettergui.BetterGUI;
 import me.hsgamer.bettergui.api.requirement.TakableRequirement;
-import me.hsgamer.bettergui.config.MessageConfig;
-import me.hsgamer.bettergui.lib.core.bukkit.utils.MessageUtils;
-import me.hsgamer.bettergui.lib.core.expression.ExpressionUtils;
-import me.hsgamer.bettergui.lib.core.variable.VariableManager;
-import me.hsgamer.bettergui.manager.PluginVariableManager;
+import me.hsgamer.bettergui.builder.RequirementBuilder;
+import me.hsgamer.bettergui.util.StringReplacerApplier;
+import me.hsgamer.hscore.bukkit.utils.MessageUtils;
+import me.hsgamer.hscore.common.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 public class PointRequirement extends TakableRequirement<Integer> {
-
-    private final Map<UUID, Integer> checked = new HashMap<>();
-
-    public PointRequirement(String name) {
-        super(name);
-        PluginVariableManager.register(name, (original, uuid) -> {
-            int points = getParsedValue(uuid);
+    protected PointRequirement(RequirementBuilder.Input input) {
+        super(input);
+        getMenu().getVariableManager().register(getName(), (original, uuid) -> {
+            int points = getFinalValue(uuid);
             if (points > 0 && !PlayerPointsHook.hasPoints(uuid, points)) {
                 return String.valueOf(points);
             }
-            return MessageConfig.HAVE_MET_REQUIREMENT_PLACEHOLDER.getValue();
+            return BetterGUI.getInstance().getMessageConfig().haveMetRequirementPlaceholder;
         });
     }
 
@@ -41,29 +36,25 @@ public class PointRequirement extends TakableRequirement<Integer> {
     }
 
     @Override
-    protected void takeChecked(UUID uuid) {
-        if (!PlayerPointsHook.takePoints(uuid, checked.remove(uuid))) {
-            Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> player.sendMessage(ChatColor.RED + "Error: the transaction couldn't be executed. Please inform the staff."));
-        }
-    }
-
-    @Override
-    public Integer getParsedValue(UUID uuid) {
-        String parsed = VariableManager.setVariables(String.valueOf(value).trim(), uuid);
-        return Optional.ofNullable(ExpressionUtils.getResult(parsed)).map(BigDecimal::intValue).orElseGet(() -> {
-            Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> MessageUtils.sendMessage(player, MessageConfig.INVALID_NUMBER.getValue().replace("{input}", parsed)));
+    protected Integer convert(Object o, UUID uuid) {
+        String parsed = StringReplacerApplier.replace(String.valueOf(o).trim(), uuid, this);
+        return Validate.getNumber(parsed).map(BigDecimal::intValue).orElseGet(() -> {
+            Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> MessageUtils.sendMessage(player, BetterGUI.getInstance().getMessageConfig().invalidNumber.replace("{input}", parsed)));
             return 0;
         });
     }
 
     @Override
-    public boolean check(UUID uuid) {
-        int points = getParsedValue(uuid);
-        if (points > 0 && !PlayerPointsHook.hasPoints(uuid, points)) {
-            return false;
+    protected Result checkConverted(UUID uuid, Integer value) {
+        if (value > 0 && !PlayerPointsHook.hasPoints(uuid, value)) {
+            return Result.fail();
         } else {
-            checked.put(uuid, points);
-            return true;
+            return successConditional((uuid1, process) -> Bukkit.getScheduler().runTask(BetterGUI.getInstance(), () -> {
+                if (!PlayerPointsHook.takePoints(uuid1, value)) {
+                    Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> player.sendMessage(ChatColor.RED + "Error: the transaction couldn't be executed. Please inform the staff."));
+                }
+                process.next();
+            }));
         }
     }
 }
