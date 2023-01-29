@@ -4,7 +4,7 @@ import me.hsgamer.bettergui.BetterGUI;
 import me.hsgamer.bettergui.api.action.BaseAction;
 import me.hsgamer.bettergui.builder.ActionBuilder;
 import me.hsgamer.hscore.common.Validate;
-import me.hsgamer.hscore.task.BatchRunnable;
+import me.hsgamer.hscore.task.element.TaskProcess;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -19,7 +19,7 @@ public class GivePointsAction extends BaseAction {
     }
 
     @Override
-    public void accept(UUID uuid, BatchRunnable.Process process) {
+    public void accept(UUID uuid, TaskProcess process) {
         String parsed = getReplacedString(uuid);
         Optional<Integer> optionalPoint = Validate.getNumber(parsed).map(BigDecimal::intValue);
         if (!optionalPoint.isPresent()) {
