@@ -4,6 +4,7 @@ import me.hsgamer.bettergui.BetterGUI;
 import me.hsgamer.bettergui.api.requirement.TakableRequirement;
 import me.hsgamer.bettergui.builder.RequirementBuilder;
 import me.hsgamer.bettergui.util.StringReplacerApplier;
+import me.hsgamer.hscore.bukkit.scheduler.Scheduler;
 import me.hsgamer.hscore.bukkit.utils.MessageUtils;
 import me.hsgamer.hscore.common.Validate;
 import org.bukkit.Bukkit;
@@ -49,12 +50,12 @@ public class PointRequirement extends TakableRequirement<Integer> {
         if (value > 0 && !PlayerPointsHook.hasPoints(uuid, value)) {
             return Result.fail();
         } else {
-            return successConditional((uuid1, process) -> Bukkit.getScheduler().runTask(BetterGUI.getInstance(), () -> {
+            return successConditional((uuid1, process) -> Scheduler.CURRENT.runTask(BetterGUI.getInstance(), () -> {
                 if (!PlayerPointsHook.takePoints(uuid1, value)) {
                     Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> player.sendMessage(ChatColor.RED + "Error: the transaction couldn't be executed. Please inform the staff."));
                 }
                 process.next();
-            }));
+            }, false));
         }
     }
 }
