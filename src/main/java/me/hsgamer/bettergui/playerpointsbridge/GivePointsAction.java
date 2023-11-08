@@ -1,6 +1,5 @@
 package me.hsgamer.bettergui.playerpointsbridge;
 
-import me.hsgamer.bettergui.BetterGUI;
 import me.hsgamer.bettergui.api.action.BaseAction;
 import me.hsgamer.bettergui.builder.ActionBuilder;
 import me.hsgamer.hscore.bukkit.scheduler.Scheduler;
@@ -30,12 +29,12 @@ public class GivePointsAction extends BaseAction {
         }
         int pointsToGive = optionalPoint.get();
         if (pointsToGive > 0) {
-            Scheduler.CURRENT.runTask(BetterGUI.getInstance(), () -> {
+            Scheduler.current().sync().runTask(() -> {
                 if (!PlayerPointsHook.givePoints(uuid, pointsToGive)) {
                     Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> player.sendMessage(ChatColor.RED + "Error: the transaction couldn't be executed. Please inform the staff."));
                 }
                 process.next();
-            }, false);
+            });
         } else {
             process.next();
         }

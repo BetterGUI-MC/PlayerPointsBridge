@@ -6,6 +6,7 @@ import me.hsgamer.bettergui.builder.RequirementBuilder;
 import me.hsgamer.bettergui.util.StringReplacerApplier;
 import me.hsgamer.hscore.bukkit.scheduler.Scheduler;
 import me.hsgamer.hscore.bukkit.utils.MessageUtils;
+import me.hsgamer.hscore.common.StringReplacer;
 import me.hsgamer.hscore.common.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,13 +18,13 @@ import java.util.UUID;
 public class PointRequirement extends TakableRequirement<Integer> {
     protected PointRequirement(RequirementBuilder.Input input) {
         super(input);
-        getMenu().getVariableManager().register(getName(), (original, uuid) -> {
+        getMenu().getVariableManager().register(getName(), StringReplacer.of((original, uuid) -> {
             int points = getFinalValue(uuid);
             if (points > 0 && !PlayerPointsHook.hasPoints(uuid, points)) {
                 return String.valueOf(points);
             }
-            return BetterGUI.getInstance().getMessageConfig().haveMetRequirementPlaceholder;
-        });
+            return BetterGUI.getInstance().getMessageConfig().getHaveMetRequirementPlaceholder();
+        }));
     }
 
     @Override
@@ -40,7 +41,7 @@ public class PointRequirement extends TakableRequirement<Integer> {
     protected Integer convert(Object o, UUID uuid) {
         String parsed = StringReplacerApplier.replace(String.valueOf(o).trim(), uuid, this);
         return Validate.getNumber(parsed).map(BigDecimal::intValue).orElseGet(() -> {
-            Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> MessageUtils.sendMessage(player, BetterGUI.getInstance().getMessageConfig().invalidNumber.replace("{input}", parsed)));
+            Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> MessageUtils.sendMessage(player, BetterGUI.getInstance().getMessageConfig().getInvalidNumber(parsed)));
             return 0;
         });
     }
@@ -50,12 +51,12 @@ public class PointRequirement extends TakableRequirement<Integer> {
         if (value > 0 && !PlayerPointsHook.hasPoints(uuid, value)) {
             return Result.fail();
         } else {
-            return successConditional((uuid1, process) -> Scheduler.CURRENT.runTask(BetterGUI.getInstance(), () -> {
+            return successConditional((uuid1, process) -> Scheduler.current().sync().runTask(() -> {
                 if (!PlayerPointsHook.takePoints(uuid1, value)) {
                     Optional.ofNullable(Bukkit.getPlayer(uuid)).ifPresent(player -> player.sendMessage(ChatColor.RED + "Error: the transaction couldn't be executed. Please inform the staff."));
                 }
                 process.next();
-            }, false));
+            }));
         }
     }
 }
